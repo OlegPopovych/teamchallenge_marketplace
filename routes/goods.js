@@ -21,7 +21,7 @@ let gfs;
 connect.once('open', () => {
 	// initialize stream
 	gfs = new mongoose.mongo.GridFSBucket(connect.db, {
-		bucketName: "uploads"
+		bucketName: "goodsPictures"
 	});
 });
 
@@ -128,20 +128,23 @@ goodsRoutes.post("/goods", upload.array('goodsPicture', 3), (req, res, next) => 
 /* 
 				GET: Fetches a particular image and render on browser
 		*/
-goodsRoutes.route('/image/:id')
+goodsRoutes.route('/image/:filename')
 	.get((req, res, next) => {
-		gfs.find({ id: req.params.id }).toArray((err, files) => {
+		console.log(req.params.filename)
+		gfs.find({ filename: req.params.filename }).toArray((err, files) => {
+			console.log('files:', files)
 			if (!files[0] || files.length === 0) {
+
+
 				return res.status(200).json({
 					success: false,
 					message: 'No files available',
 				});
 			}
-
 			if (files[0].contentType === 'image/jpeg' || files[0].contentType === 'image/png' || files[0].contentType === 'image/svg+xml') {
 				// render image to browser
-				// gfs.openDownloadStreamByName(req.params.id).pipe(res);
-				gfs.openDownloadStream(req.params.id).pipe(res);
+				gfs.openDownloadStreamByName(req.params.filename).pipe(res);
+				// gfs.openDownloadStream(ObjectId(req.params.id)).pipe(res);
 			} else {
 				res.status(404).json({
 					err: 'Not an image',
