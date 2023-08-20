@@ -1,7 +1,7 @@
 require("dotenv").config();
 const User = require("./src/user/user.model");
 const Token = require("./src/user/token.model");
-
+const cors = require("cors");
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
@@ -21,6 +21,24 @@ require("./src/auth_config/passport");
 require("./src/auth_config/local");
 require("./src/auth_config/google");
 require("./src/auth_config/facebook");
+
+const whitelist = process.env.WHITELISTED_DOMAINS
+	? process.env.WHITELISTED_DOMAINS.split(",")
+	: [];
+
+const corsOptions = {
+	origin: function (origin, callback) {
+		if (!origin || whitelist.indexOf(origin) !== -1) {
+			callback(null, true);
+		} else {
+			callback(new Error("Not allowed by CORS"));
+		}
+	},
+
+	credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 // const mongodbUri = process.env.MONGO_URI;
 
@@ -214,7 +232,7 @@ app.get("/profile", isLoggedIn, (req, res) => {
 // 	});
 // });
 
-var port = process.env.PORT || process.env.VCAP_APP_PORT || 3000;
+var port = process.env.PORT || process.env.VCAP_APP_PORT || 3005;
 
 app.listen(port, function () {
 	console.log(`SaaSBase Authentication Server listening on port ${port}`);

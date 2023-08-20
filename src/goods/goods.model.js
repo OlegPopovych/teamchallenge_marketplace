@@ -2,7 +2,7 @@ let mongoose = require("mongoose");
 let Schema = mongoose.Schema;
 
 const goodsSchema = new Schema({
-	id: {
+	card_id: {
 		type: String,
 		required: true
 	},
@@ -24,10 +24,10 @@ const goodsSchema = new Schema({
 	},
 	description: {
 		type: String,
-		default: '',
+		default: 'default description',
 	},
 	price: {
-		type: Number,
+		type: String,
 		required: true
 	},
 	category: {
