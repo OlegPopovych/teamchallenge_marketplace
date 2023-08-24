@@ -232,6 +232,11 @@ app.get("/profile", isLoggedIn, (req, res) => {
 // 	});
 // });
 
+app.use((err, req, res, next) => {
+  console.error(err.message)
+  res.status(500).send(err.message)
+})
+
 var port = process.env.PORT || process.env.VCAP_APP_PORT || 3005;
 
 app.listen(port, function () {

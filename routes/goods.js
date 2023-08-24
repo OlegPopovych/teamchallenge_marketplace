@@ -13,16 +13,15 @@ const Goods = require('../src/goods/goods.model');
 const { GridFsStorage } = require('multer-gridfs-storage');
 const crypto = require('crypto');
 
-
-const connect = mongoose.createConnection(url, { useNewUrlParser: true, useUnifiedTopology: true });
+const conn = mongoose.createConnection(url, { useNewUrlParser: true, useUnifiedTopology: true });
 
 let gfs;
 
-connect.once('open', () => {
+conn.once('open', () => {
 	// initialize stream
-	gfs = new mongoose.mongo.GridFSBucket(connect.db, {
+	gfs = new mongoose.mongo.GridFSBucket(conn.db, {
 		bucketName: "goodsPictures"
-	});
+	})
 });
 
 /* 
@@ -34,29 +33,29 @@ const storage = new GridFsStorage({
 	url: url,
 	file: (req, file) => {
 		return new Promise((resolve, reject) => {
-			console.log("request body is: ", req.body)
-			crypto.randomBytes(16, (err, buf) => {
-				if (err) {
-					return reject(err);
-				}
-				const filename = buf.toString('hex') + path.extname(file.originalname);
-				const fileInfo = {
-					filename: filename,
-					bucketName: 'goodsPictures'
-				};
-				resolve(fileInfo);
-			});
+			console.log(file)
+
+			if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+				crypto.randomBytes(16, (err, buf) => {
+					if (err) {
+						return reject(err);
+					}
+					const filename = buf.toString('hex') + path.extname(file.originalname);
+					const fileInfo = {
+						filename: filename,
+						bucketName: 'goodsPictures'
+					};
+					resolve(fileInfo);
+				});
+			} else {
+				return reject('wrong format');
+			}
+
 		});
 	}
 });
 
-const upload = multer({ storage });
-
-goodsRoutes.get("/goods1", async (req, res) => {
-	console.log(req)
-	res.status(200).send({ message: "goods1 are there!" });
-});
-
+const upload = multer({ storage, limits: { fileSize: 6291456 } });
 
 goodsRoutes.post("/goods", upload.array('goodsPicture', 3), (req, res, next) => {
 	let card_id = uuid.v4();
@@ -99,6 +98,7 @@ goodsRoutes.post("/goods", upload.array('goodsPicture', 3), (req, res, next) => 
 	newGoods.save()
 		.then((goods) => {
 			console.log("created new goods is: ", goods)
+
 			res.status(200).json({
 				success: true,
 				goods
@@ -106,6 +106,7 @@ goodsRoutes.post("/goods", upload.array('goodsPicture', 3), (req, res, next) => 
 		})
 		.catch(err => {
 			console.log(err)
+
 			res.status(500).json({
 				err,
 				success: false,
@@ -115,6 +116,30 @@ goodsRoutes.post("/goods", upload.array('goodsPicture', 3), (req, res, next) => 
 })
 	.get("/goods", (req, res, next) => {
 		Goods.find({})
+			.then(goods => {
+				let preViewArr = goods.map(item = > {
+					return {
+						card_id: itemcard_id,
+						author: 'example',
+						author_id: 'example',
+						title: 'example',
+						description: req.body.description,
+						price: 'example',
+						category: 'example',
+						condition: 'example',
+						location: 'example',
+						images: req.files[0]
+					}
+				})
+				res.status(200).json({
+					success: true,
+					goods,
+				});
+			})
+			.catch(err => res.status(500).json(err));
+	})
+	.get("/goods/:card_id", (req, res, next) => {
+		Goods.find({card_id: req.params.card_id})
 			.then(goods => {
 				res.status(200).json({
 					success: true,
@@ -126,33 +151,31 @@ goodsRoutes.post("/goods", upload.array('goodsPicture', 3), (req, res, next) => 
 	;
 
 /* 
-				GET: Fetches a particular image and render on browser
+ GET: Fetches a particular image and render on browser
 		*/
 goodsRoutes.route('/image/:filename')
 	.get((req, res, next) => {
-		console.log(req.params.filename)
 		gfs.find({ filename: req.params.filename }).toArray((err, files) => {
-			console.log('files:', files)
 			if (!files[0] || files.length === 0) {
-
-
 				return res.status(200).json({
 					success: false,
 					message: 'No files available',
 				});
 			}
+
 			if (files[0].contentType === 'image/jpeg' || files[0].contentType === 'image/png' || files[0].contentType === 'image/svg+xml') {
 				// render image to browser
 				gfs.openDownloadStreamByName(req.params.filename).pipe(res);
-				// gfs.openDownloadStream(ObjectId(req.params.id)).pipe(res);
 			} else {
 				res.status(404).json({
 					err: 'Not an image',
 				});
 			}
 		});
-	})
-	;
+	});
+
+	
+
 
 /*
 		DELETE: Delete a particular file by an ID
