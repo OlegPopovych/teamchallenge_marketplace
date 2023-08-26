@@ -27,7 +27,7 @@ const goodsSchema = new Schema({
 		default: 'default description',
 	},
 	price: {
-		type: String,
+		type: Number,
 		required: true
 	},
 	category: {

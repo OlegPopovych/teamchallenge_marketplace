@@ -83,14 +83,14 @@ goodsRoutes.post("/goods", upload.array('goodsPicture', 3), (req, res, next) => 
 
 	let newGoods = new Goods({
 		card_id: card_id,
-		author: 'example',
-		author_id: 'example',
-		title: 'example',
+		author: req.body.author,
+		author_id: req.body.author_id,
+		title: req.body.title,
 		description: req.body.description,
-		price: 'example',
-		category: 'example',
-		condition: 'example',
-		location: 'example',
+		price: parseInt(req.body.price),
+		category: req.body.category,
+		condition: req.body.condition,
+		location: req.body.location,
 		images: req.files
 
 	});
@@ -117,26 +117,30 @@ goodsRoutes.post("/goods", upload.array('goodsPicture', 3), (req, res, next) => 
 	.get("/goods", (req, res, next) => {
 		Goods.find({})
 			.then(goods => {
-				let preViewArr = goods.map(item = > {
-					return {
-						card_id: itemcard_id,
-						author: 'example',
-						author_id: 'example',
-						title: 'example',
-						description: req.body.description,
-						price: 'example',
-						category: 'example',
-						condition: 'example',
-						location: 'example',
-						images: req.files[0]
-					}
-				})
+				// let preViewArr = goods.map(item => {
+				// 	return {
+				// 		card_id: item.card_id,
+				// 		author: 'example',
+				// 		author_id: 'example',
+				// 		title: 'example',
+				// 		description: req.body.description,
+				// 		price: 'example',
+				// 		category: 'example',
+				// 		condition: 'example',
+				// 		location: 'example',
+				// 		images: req.files[0]
+				// 	}
+				// })
 				res.status(200).json({
 					success: true,
 					goods,
 				});
 			})
-			.catch(err => res.status(500).json(err));
+			.catch(err => {
+				console.log(err),
+				res.status(500).json(err)
+			}
+				);
 	})
 	.get("/goods/:card_id", (req, res, next) => {
 		Goods.find({card_id: req.params.card_id})
