@@ -1,4 +1,5 @@
 let mongoose = require("mongoose");
+const mongoosePaginate = require('mongoose-paginate-v2');
 let Schema = mongoose.Schema;
 
 const goodsSchema = new Schema({
@@ -40,7 +41,7 @@ const goodsSchema = new Schema({
 	},
 	location: {
 		type: String,
-		required: true,
+		// required: true,
 	},
 	active: {
 		type: Boolean,
@@ -51,6 +52,8 @@ const goodsSchema = new Schema({
 		default: []
 	}
 });
+
+goodsSchema.plugin(mongoosePaginate);
 
 const goodsModel = mongoose.model("goods", goodsSchema, "goods");
 

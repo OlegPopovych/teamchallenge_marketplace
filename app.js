@@ -234,7 +234,13 @@ app.get("/profile", isLoggedIn, (req, res) => {
 
 app.use((err, req, res, next) => {
   console.error(err.message)
-  res.status(500).send(err.message)
+	if(err instanceof TypeError) {
+		res.status(400).send({
+			success: false,
+			message: err.message
+		})
+	}
+  res.status(500).send(err)
 })
 
 var port = process.env.PORT || process.env.VCAP_APP_PORT || 3005;

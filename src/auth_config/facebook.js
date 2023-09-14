@@ -1,7 +1,7 @@
 const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
 const UserService = require('../user');
-const separateFullNameToArray = require('../../utils/additional_data_processing');
+const separator = require('../../utils/additional_data_processing').separateFullNameToArray;
 
 passport.use(new FacebookStrategy({
 	clientID: process.env.FACEBOOK_APP_ID,
@@ -10,7 +10,7 @@ passport.use(new FacebookStrategy({
 	profileFields: ['id', "email", 'displayName', 'gender', 'photos']
 },
 	async (accessToken, refreshToken, profile, done) => {
-		const fullNameArr = separateFullNameToArray(profile.displayName);
+		const fullNameArr = separator(profile.displayName);
 		const id = profile.id;
 		const email = profile.email ? profile.email : '';
 		const firstName = fullNameArr[0];

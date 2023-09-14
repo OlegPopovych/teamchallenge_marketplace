@@ -38,6 +38,10 @@ const userSchema = new Schema({
 		type: Boolean,
 		default: false
 	},
+	selectedGoods: {
+		type: Array,  //array of card_ids
+		default: []
+	},
 });
 
 const userModel = mongoose.model("user", userSchema, "user");
