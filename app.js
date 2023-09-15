@@ -158,7 +158,7 @@ app.use(goodsRoutes);
 
 
 //protected route
-app.get("/profile", isLoggedIn, (req, res) => {
+app.get("/test", isLoggedIn, (req, res) => {
 	res.send({ user: req.user });
 });
 
