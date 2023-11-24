@@ -10,16 +10,6 @@ const GoodsPictureSchema = new Schema({
 		required: true,
 		type: String,
 	},
-
-
-	// fileId: {
-	//     required: true,
-	//     type: String,
-	// },
-	// createdAt: {
-	//     default: Date.now(),
-	//     type: Date,
-	// },
 });
 
 const GoodsPicture = mongoose.model('GoodsPicture', GoodsPictureSchema);

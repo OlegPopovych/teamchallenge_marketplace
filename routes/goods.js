@@ -3,12 +3,9 @@ const goodsRoutes = express.Router();
 const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 const path = require('path');
-const passport = require("passport");
 const multer = require('multer');
 const uuid = require("uuid");
-const bcrypt = require("bcrypt");
 const url = process.env.MONGO_URI;
-const GoodsPicture = require('../src/goods/goodsPicture.model');
 const Goods = require('../src/goods/goods.model');
 const { GridFsStorage } = require('multer-gridfs-storage');
 const crypto = require('crypto');
@@ -28,7 +25,7 @@ conn.once('open', () => {
 const deleteImg = (arr) => {
 	for (let item of arr) {
 
-		gfs.delete(new mongoose.Types.ObjectId(item.id), (err, data) => {
+		gfs.delete(new mongoose.Types.ObjectId(item.id), (err) => {
 			if (err) {
 				console.log(`ERROR image ${item.id} did not delete. Error: ${err}`)
 			}
@@ -38,7 +35,7 @@ const deleteImg = (arr) => {
 	}
 }
 
-/* 
+/*
 		GridFs Configuration
 */
 
@@ -76,16 +73,16 @@ const upload = multer({
 	}
 });
 
-goodsRoutes.post("/goods", upload.array('goodsPicture', 4), (req, res, next) => {
+goodsRoutes.post("/goods", upload.array('goodsPicture', 4), (req, res) => {
 	let card_id = uuid.v4();
 
 	if (req.files) {
-		let arr = req.files.map(item => {
-			return {
-				card_id: card_id,
-				pictureId: item.id			//item.id результат роботи upload.array
-			}
-		})
+		// let arr = req.files.map(item => {
+		// 	return {
+		// 		card_id: card_id,
+		// 		pictureId: item.id			//item.id результат роботи upload.array
+		// 	}
+		// })
 
 		// if (req.files.length > 0) {
 		// 	GoodsPicture.insertMany(arr) //save pictures in db
@@ -131,7 +128,7 @@ goodsRoutes.post("/goods", upload.array('goodsPicture', 4), (req, res, next) => 
 	}
 })
 
-	.get("/goods/:card_id", (req, res, next) => {
+	.get("/goods/:card_id", (req, res) => {
 		Goods.find({ card_id: req.params.card_id })
 			.then(goods => {
 				if (goods.length === 0) {
@@ -147,7 +144,7 @@ goodsRoutes.post("/goods", upload.array('goodsPicture', 4), (req, res, next) => 
 			.catch(err => res.status(500).json(err));
 	})
 
-	.get("/pages/goods", (req, res, next) => {
+	.get("/pages/goods", (req, res) => {
 		const { page, limit, title, category, filer_float_price_from, filer_float_price_to, filer_float_data_from, filer_float_data_to } = req.query;
 
 		const options = {
@@ -195,7 +192,7 @@ goodsRoutes.post("/goods", upload.array('goodsPicture', 4), (req, res, next) => 
 			.catch(err => res.status(500).json(err));
 	})
 
-	.delete("/goods/:card_id", (req, res, next) => {
+	.delete("/goods/:card_id", (req, res) => {
 		console.log(req.params.card_id)
 
 		Goods.find({ card_id: req.params.card_id })
@@ -253,11 +250,11 @@ goodsRoutes.post("/goods", upload.array('goodsPicture', 4), (req, res, next) => 
 	// })
 	;
 
-/* 
+/*
  GET: Fetches a particular image and render on browser
 */
 goodsRoutes.route('/image/:filename')
-	.get((req, res, next) => {
+	.get((req, res) => {
 		gfs.find({ filename: req.params.filename }).toArray((err, files) => {
 			if (!files[0] || files.length === 0) {
 				return res.status(200).json({
@@ -298,8 +295,5 @@ goodsRoutes.route('/image/:filename')
 // 			});
 // 		});
 // 	});
-
-
-
 
 module.exports = goodsRoutes;
