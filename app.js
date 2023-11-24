@@ -1,17 +1,12 @@
 require("dotenv").config();
-const User = require("./src/user/user.model");
-const Token = require("./src/user/token.model");
+
 const cors = require("cors");
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
-const mongoose = require("mongoose");
 const passport = require("passport");
 const session = require("express-session");
-const uuid = require("uuid");
-const bcrypt = require("bcrypt");
-const UserService = require("./src/user");
 
 const userRoutes = require("./routes/user");
 const goodsRoutes = require("./routes/goods");
@@ -76,7 +71,7 @@ app.get("/test", isLoggedIn, (req, res) => {
 	res.send({ user: req.user });
 });
 
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
 	console.error(err.message)
 	if (err instanceof TypeError) {
 		res.status(400).send({
