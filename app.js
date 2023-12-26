@@ -79,7 +79,7 @@ app.use((err, req, res) => {
 			message: err.message
 		})
 	}
-	res.status(500).send(err)
+	// res.status(500).send(err)
 })
 
 var port = process.env.PORT || process.env.VCAP_APP_PORT || 3005;
